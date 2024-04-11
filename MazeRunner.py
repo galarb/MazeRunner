@@ -138,7 +138,7 @@ def track(reflected_light_sp, times):
 def debug(error, cumError, rateError, lastde):
     pen_in5.setColor(0.5, 0, 0.95)
     pen_in5.setWidth(2)
-    #print(error)#, 'cumError', int(cumError), 'rateError', int(rateError), 'lastdev', int(lastde))
+    #print(rateError)#, 'cumError', int(cumError), 'rateError', int(rateError), 'lastdev', int(lastde))
     pen_in5.down()
 
 def goUS(dist_sp, times, Kp):
@@ -206,24 +206,33 @@ def decidealignment():
     elif 45 <= ang_pv < 135:
         definiteang = 90
         return 90  # East
-    elif -135 <= ang_pv < -45:
-        definiteang = -90
-        return -90  # West
     elif 135 <= ang_pv < 225:
         definiteang = 180
         return 180  # South
     elif 225 <= ang_pv < 315:
         definiteang = 270
-        return 270  # South-West
-    elif -45 <= ang_pv < -135:
+        return 270  # West
+    elif 315 <= ang_pv < 405:
+        definiteang = 360
+        return 360  # West
+    elif ang_pv > 405:
+        definiteang = 0
+        return 0
+    elif -135 <= ang_pv < -45:
+        definiteang = -90
+        return -90  # West
+    elif -225 <= ang_pv < -135:
         definiteang = -180
         return -180  # South
-    elif -135 <= ang_pv < -225:
+    elif -315 <=  ang_pv < -225:
         definiteang = -270
-        return -270  # South-East
-    elif ang_pv >= -315 or ang_pv < -225:
+        return -270  # North-West
+    elif -405 <=  ang_pv < -315:
         definiteang = -360
         return -360  # North-West
+    elif ang_pv < -405:
+        definiteang = 0
+        return 0  # North-West
     else:
         print("error. ang_pv =", ang_pv, "definiteang =", definiteang)
 
@@ -237,7 +246,6 @@ def decidedirection():
     right = ultrasonic_sensor_in6.distance_centimeters
     left = ultrasonic_sensor_in7.distance_centimeters
     if front > right and front > left:
-        #print("go forward")
         return "forward"
     elif right > left:
         return "right"
@@ -256,12 +264,7 @@ def decideturn(times):
     elif direction == "stuck":
         definiteang += 180
 
-    # Ensure definiteang stays within the range of -315 to 315 degrees
-    if definiteang > 315:
-        definiteang -= 360
-    elif definiteang < -315:
-        definiteang += 360
-    print("error message: definiteang =", definiteang, "times =", times)
+    print("debug message: definiteang =", definiteang, "times =", times)
     turn(definiteang, times, 2)
 
 
@@ -280,15 +283,15 @@ def navigate(speed):
             pen_in5.up()
     else:
         print ("stuck - reeversing")
-        motorA.on_for_rotations(100, 2, block=False) #%power, rotations, don't wait for completion
-        motorB.on_for_rotations(100, 2)#wait for completion
+        motorA.on_for_rotations(-60, 2, block=False) #%power, rotations, don't wait for completion
+        motorB.on_for_rotations(-60, 2)#wait for completion
 
         
         
-
-for i in range (20):
-    navigate(60)
-    
+runs = 50
+for i in range (runs):
+    navigate(60)#speed
+    print ("**** naviate iteration number ", i, " of ", runs, "   *****")
     
 tank_drive.off(brake=True)
 
